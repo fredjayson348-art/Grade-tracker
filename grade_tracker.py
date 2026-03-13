@@ -1,4 +1,4 @@
-# Grade Tracker - Session 4: File I/O + JSON
+# Grade Tracker - Session 5: Exception Handling
 # By Fred (fredjayson348-art)
 
 import json
@@ -18,10 +18,19 @@ def save_grades(grades):
 
 def add_subject(grades):
     subject = input("Enter subject name: ")
-    score = float(input("Enter score for " + subject + ": "))
-    grades[subject] = score
-    save_grades(grades)
-    print("✓ Added and saved!\n")
+    if subject.strip() == "":
+        print("❌ Subject name cannot be empty!\n")
+        return
+    try:
+        score = float(input("Enter score for " + subject + ": "))
+        if score < 0 or score > 100:
+            print("❌ Score must be between 0 and 100!\n")
+            return
+        grades[subject] = score
+        save_grades(grades)
+        print("✓ Added and saved!\n")
+    except ValueError:
+        print("❌ Invalid score! Please enter a number.\n")
 
 def show_grades(grades):
     if len(grades) == 0:
@@ -62,4 +71,4 @@ while True:
         print("Goodbye!")
         break
     else:
-        print("Invalid option, try again!\n")
+        print("❌ Invalid option, try again!\n")# Grade Tracker - Session 5: Exception Handling
