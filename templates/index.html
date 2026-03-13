@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
+        h1 { text-align: center; color: #38bdf8; margin-bottom: 20px; }
+        .card { background: #1e293b; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .card h2 { color: #38bdf8; margin-bottom: 10px; font-size: 16px; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border-radius: 6px; border: none; background: #334155; color: white; }
+        button { width: 100%; padding: 10px; margin-top: 8px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-add { background: #38bdf8; color: #0f172a; }
+        .btn-report { background: #22c55e; color: #0f172a; }
+        .grade-item { display: flex; justify-content: space-between; padding: 8px; background: #334155; border-radius: 6px; margin: 5px 0; }
+        .grade-A { border-left: 4px solid #22c55e; }
+        .grade-B { border-left: 4px solid #38bdf8; }
+        .grade-C { border-left: 4px solid #facc15; }
+        .grade-D { border-left: 4px solid #fb923c; }
+        .grade-F { border-left: 4px solid #ef4444; }
+        .report-box { background: #334155; padding: 10px; border-radius: 6px; text-align: center; }
+        .report-box p { margin: 5px 0; font-size: 18px; font-weight: bold; color: #38bdf8; }
+        .msg { padding: 8px; border-radius: 6px; margin-top: 8px; text-align: center; display: none; }
+        .msg.success { background: #166534; color: #86efac; display: block; }
+        .msg.error { background: #7f1d1d; color: #fca5a5; display: block; }
+    </style>
+</head>
+<body>
+    <h1>🎓 Grade Tracker</h1>
+
+    <div class="card">
+        <h2>➕ Add Subject</h2>
+        <input type="text" id="subject" placeholder="Subject name" />
+        <input type="number" id="score" placeholder="Score (0-100)" />
+        <button class="btn-add" onclick="addGrade()">Add Grade</button>
+        <div id="msg" class="msg"></div>
+    </div>
+
+    <div class="card">
+        <h2>📊 Your Grades</h2>
+        <div id="grades-list">Loading...</div>
+    </div>
+
+    <div class="card">
+        <h2>📈 Report</h2>
+        <div id="report-box" class="report-box">Loading...</div>
+        <button class="btn-report" onclick="loadReport()">Refresh Report</button>
+    </div>
+
+    <script>
+        async function loadGrades() {
+            const res = await fetch('/grades');
+            const data = await res.json();
+            const list = document.getElementById('grades-list');
+            list.innerHTML = '';
+            for (const [subject, info] of Object.entries(data)) {
+                const div = document.createElement('div');
+                div.className = `grade-item grade-${info.letter}`;
+                div.innerHTML = `<span>${subject}</span><span>${info.score} (${info.letter}) | GPA: ${info.gpa}</span>`;
+                list.appendChild(div);
+            }
+            if (Object.keys(data).length === 0) list.innerHTML = '<p>No grades yet!</p>';
+        }
+
+        async function loadReport() {
+            const res = await fetch('/report');
+            const data = await res.json();
+            document.getElementById('report-box').innerHTML = `
+                <p>Average: ${data.average}</p>
+                <p>GPA: ${data.gpa}</p>
+                <p>Subjects: ${data.total_subjects}</p>
+            `;
+        }
+
+        async function addGrade() {
+            const subject = document.getElementById('subject').value;
+            const score = parseFloat(document.getElementById('score').value);
+            const msg = document.getElementById('msg');
+            const res = await fetch('/grades', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subject, score })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                msg.className = 'msg success';
+                msg.textContent = '✓ ' + data.message;
+                document.getElementById('subject').value = '';
+                document.getElementById('score').value = '';
+                loadGrades();
+                loadReport();
+            } else {
+                msg.className = 'msg error';
+                msg.textContent = '❌ ' + data.error;
+            }
+        }
+
+        loadGrades();
+        loadReport();
+    </script>
+</body>
+</html>
