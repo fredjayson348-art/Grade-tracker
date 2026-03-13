@@ -1,31 +1,43 @@
-# Grade Tracker - Session 2: Menu + Functions
+# Grade Tracker - Session 4: File I/O + JSON
 # By Fred (fredjayson348-art)
 
-subjects = []
-scores = []
+import json
 
-def add_subject():
+FILENAME = "grades.json"
+
+def load_grades():
+    try:
+        with open(FILENAME, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+def save_grades(grades):
+    with open(FILENAME, "w") as f:
+        json.dump(grades, f)
+
+def add_subject(grades):
     subject = input("Enter subject name: ")
     score = float(input("Enter score for " + subject + ": "))
-    subjects.append(subject)
-    scores.append(score)
-    print("✓ Added!\n")
+    grades[subject] = score
+    save_grades(grades)
+    print("✓ Added and saved!\n")
 
-def show_grades():
-    if len(subjects) == 0:
+def show_grades(grades):
+    if len(grades) == 0:
         print("No grades added yet!\n")
         return
     print("\n--- Your Grades ---")
-    for i in range(len(subjects)):
-        print(subjects[i], ":", scores[i])
+    for subject, score in grades.items():
+        print(subject, ":", score)
     print()
 
-def calculate_average():
-    if len(scores) == 0:
+def calculate_average(grades):
+    if len(grades) == 0:
         print("No scores yet!\n")
         return
-    average = sum(scores) / len(scores)
-    print("Average Score:", average, "\n")
+    average = sum(grades.values()) / len(grades)
+    print("Average Score:", round(average, 2), "\n")
 
 def show_menu():
     print("=== Student Grade Tracker ===")
@@ -35,16 +47,17 @@ def show_menu():
     print("4. Quit")
 
 # --- Main Program ---
+grades = load_grades()
+
 while True:
     show_menu()
     choice = input("Choose an option (1-4): ")
-
     if choice == "1":
-        add_subject()
+        add_subject(grades)
     elif choice == "2":
-        show_grades()
+        show_grades(grades)
     elif choice == "3":
-        calculate_average()
+        calculate_average(grades)
     elif choice == "4":
         print("Goodbye!")
         break
