@@ -1,1 +1,1 @@
-web: gunicorn app:app
+web: gunicorn grade_tracker_db.app:app
