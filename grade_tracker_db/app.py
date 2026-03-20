@@ -8,7 +8,9 @@ import os
 
 app = Flask(__name__)
 app.secret_key = 'fred_secret_key_2025'
-DB = 'grades.db'
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB = os.path.join(BASE_DIR, 'grades.db')
 
 def get_db():
     conn = sqlite3.connect(DB)
