@@ -118,6 +118,70 @@ def logout():
     session.clear()
     return jsonify({'message': 'Logged out!'})
 
+@app.route('/api/change-password', methods=['POST'])
+def change_password():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Login required'}), 401
+    data = request.get_json()
+    old_password = data.get('old_password', '')
+    new_password = data.get('new_password', '')
+    if not old_password or not new_password:
+        return jsonify({'error': 'All fields required'}), 400
+    if len(new_password) < 4:
+        return jsonify({'error': 'Password too short'}), 400
+    conn = get_db()
+    user = conn.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],)).fetchone()
+    if not user or not check_password_hash(user['password'], old_password):
+        conn.close()
+        return jsonify({'error': 'Current password is incorrect'}), 401
+    conn.execute('UPDATE users SET password = ? WHERE id = ?', (generate_password_hash(new_password), session['user_id']))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Password updated successfully!'})
+
+
+@app.route('/api/change-password', methods=['POST'])
+def change_password():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Login required'}), 401
+    data = request.get_json()
+    old_password = data.get('old_password', '')
+    new_password = data.get('new_password', '')
+    if not old_password or not new_password:
+        return jsonify({'error': 'All fields required'}), 400
+    if len(new_password) < 4:
+        return jsonify({'error': 'Password too short'}), 400
+    conn = get_db()
+    user = conn.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],)).fetchone()
+    if not user or not check_password_hash(user['password'], old_password):
+        conn.close()
+        return jsonify({'error': 'Current password is incorrect'}), 401
+    conn.execute('UPDATE users SET password = ? WHERE id = ?', (generate_password_hash(new_password), session['user_id']))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Password updated successfully!'})
+@app.route('/api/change-password', methods=['POST'])
+def change_password():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Login required'}), 401
+    data = request.get_json()
+    old_password = data.get('old_password', '')
+    new_password = data.get('new_password', '')
+    if not old_password or not new_password:
+        return jsonify({'error': 'All fields required'}), 400
+    if len(new_password) < 4:
+        return jsonify({'error': 'Password too short'}), 400
+    conn = get_db()
+    user = conn.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],)).fetchone()
+    if not user or not check_password_hash(user['password'], old_password):
+        conn.close()
+        return jsonify({'error': 'Current password is incorrect'}), 401
+    conn.execute('UPDATE users SET password = ? WHERE id = ?',
+        (generate_password_hash(new_password), session['user_id']))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Password updated successfully!'})
+
 @app.route('/grades', methods=['GET'])
 @login_required
 def get_grades():
