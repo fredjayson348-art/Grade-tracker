@@ -8,6 +8,9 @@ import sqlite3
 import os
 
 app = Flask(__name__)
+@app.route("/ping")
+def ping():
+    return {"status": "ok"}, 200
 app.secret_key = 'fred_secret_key_2025'
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
